@@ -1,8 +1,9 @@
 #include <ArduinoCrypto.h>
 
-const char originalKey[] = "Enter password for encryption / decryption here";
+unsigned char* originalKey = 0;
+int originalKeySize = 0;
 
-char* key = 0;
+unsigned char* key = 0;
 int keySize;
 int chunk = 0;
 unsigned long currentChar = 0;
@@ -16,7 +17,7 @@ void generateShiftBytes() {
     for (i = 0; i < 12; i++) {
         char value = chunkStr[i];
 
-        key[keySize + i] = value;
+        key[keySize + i] = (unsigned char)value;
 
         if (value == 0) {
             break;
@@ -35,7 +36,7 @@ void generateShiftBytes() {
     chunk++;
 }
 
-int encryptChunk(char* data, unsigned long len, unsigned char* result) {
+int encryptChunk(unsigned char* data, unsigned long len, unsigned char* result) {
   generateShiftBytes();
 
   unsigned int bytesRead = min((int)(len - currentChar), 32);
@@ -48,7 +49,7 @@ int encryptChunk(char* data, unsigned long len, unsigned char* result) {
   return bytesRead;
 }
 
-int encrypt(char* data, unsigned long len, unsigned char* result) {
+int encrypt(unsigned char* data, unsigned long len, unsigned long currentTime, unsigned char* result) {
   chunk = 0;
   currentChar = 0;
 
@@ -69,8 +70,8 @@ int encrypt(char* data, unsigned long len, unsigned char* result) {
     seed[i] = (unsigned char)(random(256));
   }
 
-  keySize = strlen(originalKey);
-  key = (char*)malloc(keySize + 32);
+  keySize = originalKeySize;
+  key = (unsigned char*)malloc(keySize + 32);
   if (!key) {
     return -1;
   }
@@ -105,7 +106,7 @@ int encrypt(char* data, unsigned long len, unsigned char* result) {
   return 0;
 }
 
-int decryptChunk(char* data, unsigned long len, unsigned char* result, char* error = 0) {
+int decryptChunk(unsigned char* data, unsigned long len, unsigned char* result, char* error = 0) {
   generateShiftBytes();
 
   unsigned int bytesRead = min((int)(len - currentChar), 32);
@@ -118,7 +119,7 @@ int decryptChunk(char* data, unsigned long len, unsigned char* result, char* err
   return bytesRead;
 }
 
-int decrypt(char* data, unsigned long len, unsigned char* result) {
+int decrypt(unsigned char* data, unsigned long len, unsigned char* result) {
   if (len < 32) {
     return -1;
   }
@@ -126,8 +127,8 @@ int decrypt(char* data, unsigned long len, unsigned char* result) {
   chunk = 0;
   currentChar = 32;
 
-  keySize = strlen(originalKey);
-  key = (char*)malloc(keySize + 32);
+  keySize = originalKeySize;
+  key = (unsigned char*)malloc(keySize + 32);
   if (!key) {
     return -2;
   }
@@ -158,4 +159,18 @@ int decrypt(char* data, unsigned long len, unsigned char* result) {
   // Освобожение памяти выделенной под ключ, и успешное выполнение операции
   free(key);
   return 0;
+}
+
+void setKey(unsigned char* newKey, int newKeySize) {
+  if (originalKeySize != 0) {
+    free(originalKey);
+  }
+
+  originalKey = (unsigned char*)malloc(newKeySize);
+  int i;
+  for (i = 0; i < newKeySize; i++) {
+    originalKey[i] = newKey[i];
+  }
+
+  originalKeySize = newKeySize;
 }
