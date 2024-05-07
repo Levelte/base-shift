@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include "sha256.c"
 
-char* key = 0;
+unsigned char* key = 0;
 int keySize;
 int chunk = 0;
 unsigned char shiftBytes[32];
@@ -17,7 +17,7 @@ void generateShiftBytes() {
     for (i = 0; i < 12; i++) {
         char value = chunkStr[i];
 
-        key[keySize + i] = value;
+        key[keySize + i] = (unsigned char)value;
 
         if (value == 0) {
             break;
