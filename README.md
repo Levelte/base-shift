@@ -17,3 +17,18 @@ SHA256 based encryption / decryption algorithm for linux
 ./decrypt < ./encrypted > ./decrypted.txt
 ```
 7) If you are using this algorithm not manually, and your program often encrypts data, you are recommended to execute the program `update_rand` before each encryption, it will help randomize the seed, and will make the encryption more secure.
+
+## Node.js example
+
+1) Make sure that Node.js is installed on your system, you can check it with:
+```
+node --version
+```
+2) Clone or download this repository.
+3) Open the terminal and cd to NodeJS-usage directory inside the repository.
+4) Start the script with:
+```
+node .
+```
+5) You will be asked if you want to encrypt or decrypt some file, enter "e" for encryption, or "d" for decryption mode.
+6) Follow the script instructions.
